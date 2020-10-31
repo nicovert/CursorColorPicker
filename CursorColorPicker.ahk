@@ -5,12 +5,13 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ; CursorColorPicker
 ; Author: Nico Covert - nicovert
-; Version: 1.5
+; Version: 2.0
 
 if A_IsCompiled
 	Menu, Tray, Icon, %A_ScriptFullPath%, -159
 
 Menu, Tray, Tip, CursorColorPicker
+Menu, Tray, Add, Options, showOptions
 
 global HotkeyString = "#+c"
 global BreakLoop=0
@@ -57,10 +58,20 @@ cancelCopy() {
 	return
 }
 
-; Options GUI
-; GUI, OptionsGUI:New, MinSize250x150, Options - CursorColorPicker
-; GUI, OptionsGUI:Add, Text,, Enter a hotkey:
-; GUI, OptionsGUI:Add, Edit, Limit10 R1 W80 vInputHotkey
-; GUI, OptionsGUI:Add, Button, w80 gSetHotkey, Save
-; GUI, OptionsGUI:Add, Text, x+10 y10, Ctrl = ^`nShift = +`nAlt = !`nWin = #
-; GUI, OptionsGUI:Show, w160 h80 Center
+showOptions() {
+	GUI, OptionsGUI:New, MinSize250x150, Options - CursorColorPicker
+	GUI, OptionsGUI:Add, Text,, Enter a hotkey:
+	GUI, OptionsGUI:Add, Edit, Limit10 R1 W80 vHotkeyString, %HotkeyString%
+	GUI, OptionsGUI:Add, Button, w80 gSetHotkey, Save
+	GUI, OptionsGUI:Add, Text, x+10 y10, Ctrl = ^`nShift = +`nAlt = !`nWin = #
+	GUI, OptionsGUI:Show, w160 h80 Center
+}
+
+SetHotkey() {
+	Hotkey, %HotkeyString%, Off
+	GUI, OptionsGUI:Submit
+	IniWrite, %HotkeyString%, options.ini, SavedHotkey, hotkeystring
+	Hotkey, %HotkeyString%, KeyPressed
+	Hotkey, %HotkeyString%, On
+	Menu, Tray, Tip, CursorColorPicker - %HotkeyString%
+}
